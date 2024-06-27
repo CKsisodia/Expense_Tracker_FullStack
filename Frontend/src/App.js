@@ -1,37 +1,59 @@
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { Route, Routes } from "react-router-dom";
-import Auth from "./components/auth/Auth";
-import Login from "./components/auth/Login";
-import Signup from "./components/auth/Signup";
+import AddExpense from "./components/Expenses/AddExpense";
+import ExpenseList from "./components/Expenses/ExpenseList";
+import NavBarLayout from "./components/Home/NavBarLayout";
+import AccessLayout from "./components/auth/AccessLayout";
 import ForgotPassword from "./components/auth/ForgotPassword";
+import Login from "./components/auth/Login";
+import RedirectIfAuthenticated from "./components/auth/RedirectIfAuthenticated";
+import RequireAuth from "./components/auth/RequireAuth";
+import Signup from "./components/auth/Signup";
+import { getUserInfoAction } from "./redux/actions/asyncAuthAction";
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getUserInfoAction());
+  }, []);
+
   return (
     <div>
       <Routes>
-        <Route
-          path="/login"
-          element={
-            <Auth>
-              <Login />
-            </Auth>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <Auth>
-              <Signup />
-            </Auth>
-          }
-        />
-        <Route
-          path="/forgot-password"
-          element={
-            <Auth>
-              <ForgotPassword />
-            </Auth>
-          }
-        />
+        <Route element={<RequireAuth />}>
+          <Route path="/" element={<NavBarLayout />}>
+            <Route path="/add-expense" element={<AddExpense />} />
+            <Route path="/expense-list" element={<ExpenseList />} />
+          </Route>
+        </Route>
+        <Route element={<RedirectIfAuthenticated />}>
+          <Route
+            path="/login"
+            element={
+              <AccessLayout>
+                <Login />
+              </AccessLayout>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <AccessLayout>
+                <Signup />
+              </AccessLayout>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <AccessLayout>
+                <ForgotPassword />
+              </AccessLayout>
+            }
+          />
+        </Route>
       </Routes>
     </div>
   );

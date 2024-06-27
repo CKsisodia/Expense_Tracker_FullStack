@@ -1,11 +1,20 @@
 import React, { useState } from "react";
-import "../../styles/Auth.css";
+import styles from "../../styles/AccessLayout.module.css";
 import PersonIcon from "@mui/icons-material/Person";
 import LockIcon from "@mui/icons-material/Lock";
 import EmailIcon from "@mui/icons-material/Email";
+import { useDispatch } from "react-redux";
+import { userSignupAction } from "../../redux/actions/asyncAuthAction";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
-  const [focus, setFocus] = useState({ email: false, password: false });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [focus, setFocus] = useState({
+    username: false,
+    email: false,
+    password: false,
+  });
   const [signupData, setSignupData] = useState({
     username: "",
     email: "",
@@ -27,70 +36,100 @@ const Signup = () => {
     setSignupData({ ...signupData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(signupData);
+    const response = await dispatch(userSignupAction(signupData));
+    const status = response?.type?.split("/")[1];
+    if (status === "fulfilled") {
+      navigate("/login");
+    }
+
+    setSignupData({
+      username: "",
+      email: "",
+      password: "",
+    });
+    setFocus({ username: false, email: false, password: false });
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className={styles.formSubmit} onSubmit={handleSubmit}>
       <img src="/avatar.svg" alt="avatar" />
-      <h2 className="title">Join us today !</h2>
+      <h2 className={styles.title}>Join us today !</h2>
 
-      <div className={`input-div one ${focus.username ? "focus" : ""}`}>
-        <div className="i">
-          <PersonIcon className={focus.username ? "focused-icon" : ""} />
+      <div
+        className={`${styles["input-div"]} ${styles.one} ${
+          focus.username ? styles.focus : ""
+        }`}
+      >
+        <div className={styles.i}>
+          <PersonIcon
+            className={focus.username ? styles["focused-icon"] : ""}
+          />
         </div>
-        <div className="div">
+        <div className={styles.div}>
           <h5>Username</h5>
           <input
             type="text"
-            className="input"
+            className={styles.input}
             name="username"
             onChange={handleInputChange}
             onFocus={() => handleFocus("username")}
             onBlur={(e) => handleBlur("username", e.target.value)}
             required
+            value={signupData.username}
           />
         </div>
       </div>
-      <div className={`input-div one ${focus.email ? "focus" : ""}`}>
-        <div className="i">
-          <EmailIcon className={focus.email ? "focused-icon" : ""} />
+      <div
+        className={`${styles["input-div"]} ${styles.one} ${
+          focus.email ? styles.focus : ""
+        }`}
+      >
+        <div className={styles.i}>
+          <EmailIcon className={focus.email ? styles["focused-icon"] : ""} />
         </div>
-        <div className="div">
+        <div className={styles.div}>
           <h5>Email</h5>
           <input
             type="email"
-            className="input"
+            className={styles.input}
             name="email"
             onChange={handleInputChange}
             onFocus={() => handleFocus("email")}
             onBlur={(e) => handleBlur("email", e.target.value)}
             required
+            value={signupData.email}
           />
         </div>
       </div>
-      <div className={`input-div pass ${focus.password ? "focus" : ""}`}>
-        <div className="i">
-          <LockIcon className={focus.password ? "focused-icon" : ""} />
+      <div
+        className={`${styles["input-div"]} ${styles.pass} ${
+          focus.password ? styles.focus : ""
+        }`}
+      >
+        <div className={styles.i}>
+          <LockIcon className={focus.password ? styles["focused-icon"] : ""} />
         </div>
-        <div className="div">
+        <div className={styles.div}>
           <h5>Password</h5>
           <input
             type="password"
-            className="input"
+            className={styles.input}
             name="password"
             onChange={handleInputChange}
             onFocus={() => handleFocus("password")}
             onBlur={(e) => handleBlur("password", e.target.value)}
             autoComplete="new-password"
             required
+            value={signupData.password}
           />
         </div>
       </div>
-      <a href="/login">Already a user ?</a>
-      <input type="submit" className="btn" value="Signup" />
+      <a href="/login" className={styles.anchor}>
+        Already a user ?
+      </a>
+      <input type="submit" className={styles.btn} value="Signup" />
     </form>
   );
 };

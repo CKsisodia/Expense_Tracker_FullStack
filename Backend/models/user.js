@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db/database");
+const Expense = require("./expense");
 
 const User = sequelize.define(
   "user",
@@ -22,7 +23,7 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    access_token: {
+    refreshToken: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -32,5 +33,8 @@ const User = sequelize.define(
     tableName: "user",
   }
 );
+
+User.hasMany(Expense);
+Expense.belongsTo(User);
 
 module.exports = User;

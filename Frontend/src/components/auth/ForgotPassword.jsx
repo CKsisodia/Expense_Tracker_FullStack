@@ -1,9 +1,9 @@
-import EmailIcon from "@mui/icons-material/Email";
 import React, { useState } from "react";
-import "../../styles/Auth.css";
+import styles from "../../styles/AccessLayout.module.css";
+import EmailIcon from "@mui/icons-material/Email";
 
 const ForgotPassword = () => {
-  const [focus, setFocus] = useState({ email: false, password: false });
+  const [focus, setFocus] = useState({ email: false });
   const [resetPassword, setResetPassword] = useState({
     email: "",
   });
@@ -29,18 +29,22 @@ const ForgotPassword = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className={styles.formSubmit} onSubmit={handleSubmit}>
       <img src="/avatar.svg" alt="avatar" />
-      <h2 className="title">Reset Your Password</h2>
-      <div className={`input-div one ${focus.email ? "focus" : ""}`}>
-        <div className="i">
-          <EmailIcon className={focus.email ? "focused-icon" : ""} />
+      <h2 className={styles.title}>Reset Your Password</h2>
+      <div
+        className={`${styles["input-div"]} ${styles.one} ${
+          focus.email ? styles.focus : ""
+        }`}
+      >
+        <div className={styles.i}>
+          <EmailIcon className={focus.email ? styles["focused-icon"] : ""} />
         </div>
-        <div className="div">
+        <div className={styles.div}>
           <h5>Email</h5>
           <input
             type="text"
-            className="input"
+            className={styles.input}
             onChange={handleInputChange}
             onFocus={() => handleFocus("email")}
             onBlur={(e) => handleBlur("email", e.target.value)}
@@ -49,8 +53,8 @@ const ForgotPassword = () => {
           />
         </div>
       </div>
-      <a href="/login">Go back to login page !</a>
-      <input type="submit" className="btn" value="Login" />
+      <a href="/login" className={styles.anchor}>Go back to login page !</a>
+      <input type="submit" className={styles.btn} value="Login" />
     </form>
   );
 };

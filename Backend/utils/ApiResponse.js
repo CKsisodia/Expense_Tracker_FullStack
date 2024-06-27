@@ -1,12 +1,11 @@
 class ApiResponse {
-  constructor(statusCode = 200, message = "success", data) {
-    this.statusCode = statusCode;
+  constructor(message = "success", data) {
     this.data = data;
     this.message = message;
   }
   toJSON() {
     return {
-      statusCode: this.statusCode,
+      status: true,
       message: this.message,
       data: this.data,
     };

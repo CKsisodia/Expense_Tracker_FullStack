@@ -1,15 +1,11 @@
 class ApiError extends Error {
-  constructor(statusCode = 500, message = "Internal server error", data = {}) {
+  constructor(message = "Internal server error") {
     super(message);
-    this.statusCode = statusCode;
-    this.data = data;
   }
   toJSON() {
     return {
-      statusCode: this.statusCode,
+      status: false,
       message: this.message,
-      data: this.data,
-      timestamp: new Date().toISOString(),
     };
   }
 }
