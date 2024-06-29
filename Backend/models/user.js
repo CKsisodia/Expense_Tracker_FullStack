@@ -23,6 +23,11 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    premiumUser: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     refreshToken: {
       type: DataTypes.STRING,
       allowNull: true,

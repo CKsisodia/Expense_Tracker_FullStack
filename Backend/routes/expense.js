@@ -6,6 +6,6 @@ const { validateAccessToken } = require("../middlewares/auth");
 router.post("/add-expense", validateAccessToken, expenseController.addExpense);
 router.get("/expense-list",validateAccessToken, expenseController.getAllExpense);
 router.delete("/delete-expense/:expenseId",validateAccessToken, expenseController.deleteExpense);
-router.put("/update-expense/:expenseId", expenseController.updateExpense);
+router.put("/update-expense/:expenseId",validateAccessToken, expenseController.updateExpense);
 
 module.exports = router;

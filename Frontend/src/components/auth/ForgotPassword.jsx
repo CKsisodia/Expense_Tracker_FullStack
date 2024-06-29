@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import styles from "../../styles/AccessLayout.module.css";
 import EmailIcon from "@mui/icons-material/Email";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { forgotPasswordAction } from "../../redux/actions/asyncAuthAction";
 
 const ForgotPassword = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [focus, setFocus] = useState({ email: false });
-  const [resetPassword, setResetPassword] = useState({
+  const [email, setEmail] = useState({
     email: "",
   });
 
@@ -20,18 +25,26 @@ const ForgotPassword = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setResetPassword({ ...resetPassword, [name]: value });
+    setEmail((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(resetPassword);
+    const response = await dispatch(forgotPasswordAction(email));
+    setEmail({ email: "" });
+    setFocus({ email: false });
+    console.log(response)
+    const status = response?.type?.split("/")[1];
+    if (status === "fulfilled") {
+      navigate("/login");
+    }
   };
 
   return (
     <form className={styles.formSubmit} onSubmit={handleSubmit}>
       <img src="/avatar.svg" alt="avatar" />
-      <h2 className={styles.title}>Reset Your Password</h2>
+      <h2>Forgot Password</h2>
+      <h4>We'll send a recovery link to</h4>
       <div
         className={`${styles["input-div"]} ${styles.one} ${
           focus.email ? styles.focus : ""
@@ -41,7 +54,7 @@ const ForgotPassword = () => {
           <EmailIcon className={focus.email ? styles["focused-icon"] : ""} />
         </div>
         <div className={styles.div}>
-          <h5>Email</h5>
+          <h5>Enter email</h5>
           <input
             type="text"
             className={styles.input}
@@ -53,8 +66,10 @@ const ForgotPassword = () => {
           />
         </div>
       </div>
-      <a href="/login" className={styles.anchor}>Go back to login page !</a>
-      <input type="submit" className={styles.btn} value="Login" />
+      <a href="/login" className={styles.anchor}>
+        Return to login !
+      </a>
+      <input type="submit" className={styles.btn} value="Send recovery link" />
     </form>
   );
 };

@@ -6,6 +6,7 @@ const NavBarLayout = () => {
   return (
     <div>
       <NavBar />
+      {/* <img src="/home.jpg"/> */}
       <Outlet />
     </div>
   );

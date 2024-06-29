@@ -5,11 +5,7 @@ import { selectLoginStatus } from "../../redux/reducers/authReducers";
 
 const RedirectIfAuthenticated = () => {
   const isUserLoggedin = useSelector(selectLoginStatus);
-  return isUserLoggedin ? (
-    <Navigate to="/" replace />
-  ) : (
-    <Outlet />
-  );
+  return isUserLoggedin ? <Navigate/> : <Outlet />;
 };
 
 export default RedirectIfAuthenticated;

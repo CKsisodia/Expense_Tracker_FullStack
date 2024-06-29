@@ -1,4 +1,6 @@
-import * as React from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import { IconButton, Stack, Typography } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -7,12 +9,17 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import { useDispatch, useSelector } from "react-redux";
-import { selectExpenseData } from "../../redux/reducers/expenseSlice";
+import * as React from "react";
 import { useEffect } from "react";
-import { getAllExpenseAction } from "../../redux/actions/asyncExpenseAction";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  deleteExpenseAction,
+  getAllExpenseAction,
+} from "../../redux/actions/asyncExpenseAction";
+import { selectExpenseData } from "../../redux/reducers/expenseSlice";
 import formatDate from "../../utils/formattedDate";
-import { Typography } from "@mui/material";
+import EditExpense from "./EditExpense";
+import { useState } from "react";
 
 const columns = [
   { id: "category", label: "Category", align: "left", minWidth: 100 },
@@ -39,9 +46,16 @@ const columns = [
 
 const ExpenseList = () => {
   const dispatch = useDispatch();
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [expenseId, setExpenseId] = useState(null);
+
   const expenseData = useSelector(selectExpenseData);
+
+  const handleEditDialogClose = () => {
+    setEditDialogOpen(false);
+  };
 
   useEffect(() => {
     dispatch(getAllExpenseAction());
@@ -54,6 +68,15 @@ const ExpenseList = () => {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
+  };
+
+  const deleteHandler = (expenseId) => {
+    dispatch(deleteExpenseAction(expenseId));
+  };
+
+  const editHandler = (id) => {
+    setEditDialogOpen(true);
+    setExpenseId(id)
   };
 
   return (
@@ -87,9 +110,29 @@ const ExpenseList = () => {
                       <TableCell align="left">{row.description}</TableCell>
                       <TableCell align="left">{row.amount}</TableCell>
                       <TableCell align="center">
-                        {formatDate(row.createdAt)}
+                        {formatDate(row.updatedAt)}
                       </TableCell>
-                      <TableCell align="right">Icons</TableCell>
+                      <TableCell align="right">
+                        <IconButton
+                          sx={{ color: "#eb8690" }}
+                          size="small"
+                          onClick={() => deleteHandler(row.id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                        <IconButton
+                          sx={{ color: "#527d57" }}
+                          size="small"
+                          onClick={() => editHandler(row.id)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <EditExpense
+                          expenseData={expenseData?.data?.filter(item => item.id === expenseId)}
+                          open={editDialogOpen}
+                          handleClose={handleEditDialogClose}
+                        />
+                      </TableCell>
                     </TableRow>
                   );
                 })}

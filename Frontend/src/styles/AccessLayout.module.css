@@ -51,11 +51,21 @@
   height: 100px;
 }
 
+.passwordSucces img {
+  width: 350px;
+  height: 300px;
+}
+
 .auth-content h2 {
   margin: 15px 0;
   color: #333;
   text-transform: uppercase;
   font-size: 2rem;
+}
+
+.auth-content h4 {
+  margin-bottom: 24px;
+  color: #333;
 }
 
 .auth-content .input-div {
@@ -175,7 +185,6 @@
   font-size: 1.2rem;
   color: #fff;
   font-family: "Poppins", sans-serif;
-  text-transform: uppercase;
   margin: 1rem 0;
   cursor: pointer;
   transition: 0.5s;

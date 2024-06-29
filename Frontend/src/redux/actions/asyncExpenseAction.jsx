@@ -17,8 +17,21 @@ export const getAllExpenseAction = createAsyncThunk(
 );
 export const deleteExpenseAction = createAsyncThunk(
   "deleteExpenseAction",
-  async (expenseId) => {
+  async (expenseId, thunkAPI) => {
     const response = await expenseApiServices.deleteExpense(expenseId);
+    if (response) {
+      thunkAPI.dispatch(getAllExpenseAction());
+    }
+    return response;
+  }
+);
+export const updateExpenseAction = createAsyncThunk(
+  "updateExpenseAction",
+  async (updatedExpenseData, thunkAPI) => {
+    const response = await expenseApiServices.updateExpense(updatedExpenseData);
+    if (response) {
+      thunkAPI.dispatch(getAllExpenseAction());
+    }
     return response;
   }
 );

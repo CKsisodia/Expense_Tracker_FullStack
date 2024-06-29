@@ -28,7 +28,30 @@ class ExpenseApiServices {
   };
   deleteExpense = async (expenseId) => {
     try {
-      const response = await ApiHelper.delete(`/expense/${expenseId}`);
+      const response = await ApiHelper.delete(
+        `expense/delete-expense/${expenseId}`
+      );
+      toast.success(response?.data?.message);
+      return response?.data;
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
+      throw error;
+    }
+  };
+  updateExpense = async (editFormData) => {
+    console.log(editFormData)
+    try {
+      const expenseId = editFormData?.expenseId;
+      const updatedData = {
+        updateDescription: editFormData?.updateDescription,
+        updateAmount: editFormData?.updateAmount,
+        updateCategory: editFormData?.updateCategory,
+      };
+      const response = await ApiHelper.put(
+        `expense/update-expense/${expenseId}`,
+        updatedData
+      );
       toast.success(response?.data?.message);
       return response?.data;
     } catch (error) {

@@ -33,7 +33,7 @@ const Signup = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setSignupData({ ...signupData, [name]: value });
+    setSignupData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -55,7 +55,7 @@ const Signup = () => {
   return (
     <form className={styles.formSubmit} onSubmit={handleSubmit}>
       <img src="/avatar.svg" alt="avatar" />
-      <h2 className={styles.title}>Join us today !</h2>
+      <h2>Join us today !</h2>
 
       <div
         className={`${styles["input-div"]} ${styles.one} ${
@@ -129,7 +129,7 @@ const Signup = () => {
       <a href="/login" className={styles.anchor}>
         Already a user ?
       </a>
-      <input type="submit" className={styles.btn} value="Signup" />
+      <input type="submit" className={styles.btn} value="Sign up" />
     </form>
   );
 };

@@ -14,8 +14,13 @@ import MenuItem from "@mui/material/MenuItem";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { selectLoginStatus, userActions } from "../../redux/reducers/authReducers";
+import {
+  selectLoginStatus,
+  userActions,
+} from "../../redux/reducers/authReducers";
 import { toast } from "react-toastify";
+import { buyPremiumction } from "../../redux/actions/asyncAuthAction";
+import ApiHelper from "../../utils/apiHelperFunction";
 
 // const pages = ["Add Expense", "Expense List", "Analytics"];
 const pages = [
@@ -34,7 +39,6 @@ const NavBar = () => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const isUserLoggedin = useSelector(selectLoginStatus);
-
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -71,8 +75,54 @@ const NavBar = () => {
       dispatch(userActions.loginStatus());
       localStorage.clear();
       document.cookie = `refreshToken=; Path=/`;
-      isUserLoggedin && toast.success("You have logged out")
+      isUserLoggedin && toast.success("You have logged out");
     }
+  };
+
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  };
+
+  const premiumHandler = async () => {
+    const loadScript = await loadRazorpayScript();
+
+    if (!loadScript) {
+      toast.error("Please try again !");
+      return;
+    }
+
+    const response = await dispatch(buyPremiumction());
+
+    const { userOrder, key_id } = response.payload.data;
+    const options = {
+      key: key_id,
+      name: "Expense Tracker",
+      description: "Test Transaction",
+      order_id: userOrder.orderId,
+      handler: async (response) => {
+        const paymentId = response.razorpay_payment_id;
+        await ApiHelper.post("/user/update-premium-status", {
+          orderId: userOrder.orderId,
+          paymentId,
+        });
+        toast.success("Payment successful");
+      },
+      notes: {
+        address: "Expense Tracker ",
+      },
+    };
+    const razorPay = new window.Razorpay(options);
+    razorPay.open();
   };
 
   return (
@@ -185,18 +235,31 @@ const NavBar = () => {
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-           {!isUserLoggedin && <Link to="/login">
-              <Button
-                sx={{
-                  fontSize: "16px",
-                  color: "#023364",
-                  fontWeight: 700,
-                  mr: 2,
-                }}
-              >
-                Login
-              </Button>
-            </Link>}
+            <Button
+              sx={{
+                fontSize: "16px",
+                color: "#023364",
+                fontWeight: 700,
+                mr: 2,
+              }}
+              onClick={premiumHandler}
+            >
+              Buy Premium
+            </Button>
+            {!isUserLoggedin && (
+              <Link to="/login">
+                <Button
+                  sx={{
+                    fontSize: "16px",
+                    color: "#023364",
+                    fontWeight: 700,
+                    mr: 2,
+                  }}
+                >
+                  Login
+                </Button>
+              </Link>
+            )}
 
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>

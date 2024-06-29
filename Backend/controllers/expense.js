@@ -66,4 +66,34 @@ exports.deleteExpense = async (req, res) => {
     return res.status(500).json(new ApiError("Internal server error"));
   }
 };
-exports.updateExpense = async (req, res) => {};
+exports.updateExpense = async (req, res) => {
+  try {
+    const { updateDescription, updateAmount, updateCategory } = req.body;
+    const { expenseId } = req.params;
+    const userId = req.user.id;
+
+    if (!(updateDescription && updateAmount && updateCategory && expenseId)) {
+      return res
+        .status(400)
+        .json(new ApiError("All fields are mandatory with expenseId"));
+    }
+
+    const expense = await Expense.findOne({
+      where: { id: expenseId, userId: userId },
+    });
+    if (!expense) {
+      return res.status(404).json(new ApiError("Expense not found"));
+    }
+
+    expense.description = updateDescription || expense.description;
+    expense.amount = updateAmount || expense.amount;
+    expense.category = updateCategory || expense.category;
+    await expense.save();
+
+    return res
+      .status(200)
+      .json(new ApiResponse("Expense updated !", { expense }));
+  } catch (error) {
+    return res.status(500).json(new ApiError("Internal server error"));
+  }
+};

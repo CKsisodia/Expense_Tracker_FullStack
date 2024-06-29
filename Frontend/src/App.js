@@ -11,6 +11,7 @@ import RedirectIfAuthenticated from "./components/auth/RedirectIfAuthenticated";
 import RequireAuth from "./components/auth/RequireAuth";
 import Signup from "./components/auth/Signup";
 import { getUserInfoAction } from "./redux/actions/asyncAuthAction";
+import ResetPassword from "./components/auth/ResetPassword";
 
 function App() {
   const dispatch = useDispatch();
@@ -50,6 +51,14 @@ function App() {
             element={
               <AccessLayout>
                 <ForgotPassword />
+              </AccessLayout>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <AccessLayout>
+                <ResetPassword />
               </AccessLayout>
             }
           />

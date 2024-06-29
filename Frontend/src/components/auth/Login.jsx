@@ -3,7 +3,10 @@ import styles from "../../styles/AccessLayout.module.css";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import { useDispatch } from "react-redux";
-import { getUserInfoAction, userLoginAction } from "../../redux/actions/asyncAuthAction";
+import {
+  getUserInfoAction,
+  userLoginAction,
+} from "../../redux/actions/asyncAuthAction";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -28,13 +31,13 @@ const Login = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setLoginData({ ...loginData, [name]: value });
+    setLoginData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await dispatch(userLoginAction(loginData));
-    await dispatch(getUserInfoAction())
+    await dispatch(getUserInfoAction());
     const status = response?.type?.split("/")[1];
     if (status === "fulfilled") {
       navigate("/");
@@ -48,8 +51,8 @@ const Login = () => {
 
   return (
     <form className={styles.formSubmit} onSubmit={handleSubmit}>
-      <img src="/avatar.svg" alt="avatar"/>
-      <h2 className={styles.title}>Welcome back !</h2>
+      <img src="/avatar.svg" alt="avatar" />
+      <h2>Welcome back !</h2>
       <div
         className={`${styles["input-div"]} ${styles.one} ${
           focus.email ? styles.focus : ""
@@ -96,8 +99,12 @@ const Login = () => {
         </div>
       </div>
       <div className={styles["forgot-password"]}>
-        <a href="/forgot-password" className={styles.anchor}>Forgot password ?</a>
-        <a href="/signup" className={styles.anchor}>New user ?</a>
+        <a href="/forgot-password" className={styles.anchor}>
+          Forgot password ?
+        </a>
+        <a href="/signup" className={styles.anchor}>
+          New user ?
+        </a>
       </div>
 
       <input type="submit" className={styles.btn} value="Login" />

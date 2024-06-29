@@ -11,7 +11,7 @@ exports.generateAccessToken = (user) => {
       email: user.email,
     };
     const jwtToken = jwt.sign(userData, accesssTokenSecretKey, {
-      expiresIn: "20s",
+      expiresIn: "30m",
     });
     return jwtToken;
   } catch (error) {
