@@ -2,16 +2,17 @@ import { createSlice } from "@reduxjs/toolkit";
 import { getUserInfoAction, userLoginAction } from "../actions/asyncAuthAction";
 
 const initialState = {
-  users: null,
-  isLoggedin: false,
+  userData: null,
 };
 
 const userSlice = createSlice({
   name: "user",
   initialState: initialState,
   reducers: {
-    loginStatus: (state) => {
-      state.isLoggedin = false;
+    logoutUser(state, action) {
+      state.userData = null;
+      localStorage.clear();
+      document.cookie = `refreshToken=; Path=/`;
     },
   },
   extraReducers: (builder) => {
@@ -27,13 +28,11 @@ const userSlice = createSlice({
     });
     builder.addCase(getUserInfoAction.fulfilled, (state, action) => {
       const response = action.payload;
-      if (response?.status) {
-        state.isLoggedin = true;
-      }
+      state.userData = response;
     });
   },
 });
 
 export default userSlice.reducer;
 export const userActions = userSlice.actions;
-export const selectLoginStatus = (state) => state.user.isLoggedin;
+export const selectUserData = (state) => state.user.userData;

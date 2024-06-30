@@ -103,6 +103,7 @@ exports.getUserInfo = async (req, res) => {
       id: user.id,
       username: user.username,
       email: user.email,
+      premiumUser : user.premiumUser
     };
     return res
       .status(200)
@@ -310,7 +311,7 @@ exports.premiumOrder = async (req, res) => {
       key_secret: process.env.RAZORPAY_SECRET_KEY,
     });
 
-    const amount = 99000;
+    const amount = 9900;
 
     const createOrder = async (params) => {
       return new Promise((resolve, reject) => {

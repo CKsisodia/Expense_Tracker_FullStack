@@ -1,26 +1,28 @@
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
-import { Link, useNavigate } from "react-router-dom";
+import MenuIcon from "@mui/icons-material/Menu";
+import AppBar from "@mui/material/AppBar";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Toolbar from "@mui/material/Toolbar";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import * as React from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectLoginStatus,
-  userActions,
-} from "../../redux/reducers/authReducers";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { buyPremiumction } from "../../redux/actions/asyncAuthAction";
+import {
+  buyPremiumAction,
+  getUserInfoAction,
+} from "../../redux/actions/asyncAuthAction";
+import { selectUserData, userActions } from "../../redux/reducers/authReducers";
 import ApiHelper from "../../utils/apiHelperFunction";
+import { getLeaderboardAction } from "../../redux/actions/asyncExpenseAction";
 
 // const pages = ["Add Expense", "Expense List", "Analytics"];
 const pages = [
@@ -36,9 +38,9 @@ const settings = [
 const NavBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const isUserLoggedin = useSelector(selectLoginStatus);
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
+  const user = useSelector(selectUserData);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -72,10 +74,8 @@ const NavBar = () => {
     if (id === "profile") {
       return navigate("/profile");
     } else if (id === "logout") {
-      dispatch(userActions.loginStatus());
-      localStorage.clear();
-      document.cookie = `refreshToken=; Path=/`;
-      isUserLoggedin && toast.success("You have logged out");
+      dispatch(userActions.logoutUser());
+      toast.success("You have logged out");
     }
   };
 
@@ -101,7 +101,7 @@ const NavBar = () => {
       return;
     }
 
-    const response = await dispatch(buyPremiumction());
+    const response = await dispatch(buyPremiumAction());
 
     const { userOrder, key_id } = response.payload.data;
     const options = {
@@ -115,6 +115,7 @@ const NavBar = () => {
           orderId: userOrder.orderId,
           paymentId,
         });
+        dispatch(getUserInfoAction());
         toast.success("Payment successful");
       },
       notes: {
@@ -123,6 +124,21 @@ const NavBar = () => {
     };
     const razorPay = new window.Razorpay(options);
     razorPay.open();
+  };
+
+  const avtarNameHandler = (username) => {
+    if (!username) return "";
+    const parts = username.toUpperCase().split(" ");
+    if (parts.length === 1) {
+      return `${parts[0][0]}${parts[0][1] ? parts[0][1] : ""}`;
+    } else if (parts.length > 1) {
+      return `${parts[0][0]}${parts[1][0]}`;
+    }
+  };
+
+  const leaderBoardHandler = () => {
+    dispatch(getLeaderboardAction());
+    navigate("/leader-board");
   };
 
   return (
@@ -235,18 +251,32 @@ const NavBar = () => {
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Button
-              sx={{
-                fontSize: "16px",
-                color: "#023364",
-                fontWeight: 700,
-                mr: 2,
-              }}
-              onClick={premiumHandler}
-            >
-              Buy Premium
-            </Button>
-            {!isUserLoggedin && (
+            {!user?.data?.premiumUser ? (
+              <Button
+                sx={{
+                  fontSize: "16px",
+                  color: "#023364",
+                  fontWeight: 700,
+                  mr: 2,
+                }}
+                onClick={premiumHandler}
+              >
+                Buy Premium
+              </Button>
+            ) : (
+              <Button
+                sx={{
+                  fontSize: "16px",
+                  color: "#023364",
+                  fontWeight: 700,
+                  mr: 2,
+                }}
+                onClick={leaderBoardHandler}
+              >
+                Leaderboard
+              </Button>
+            )}
+            {!user?.status && (
               <Link to="/login">
                 <Button
                   sx={{
@@ -263,7 +293,7 @@ const NavBar = () => {
 
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar>{avtarNameHandler(user?.data?.username)}</Avatar>
               </IconButton>
             </Tooltip>
             <Menu

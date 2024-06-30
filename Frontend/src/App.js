@@ -12,6 +12,7 @@ import RequireAuth from "./components/auth/RequireAuth";
 import Signup from "./components/auth/Signup";
 import { getUserInfoAction } from "./redux/actions/asyncAuthAction";
 import ResetPassword from "./components/auth/ResetPassword";
+import LeaderBoard from "./components/Expenses/LeaderBoard";
 
 function App() {
   const dispatch = useDispatch();
@@ -27,6 +28,7 @@ function App() {
           <Route path="/" element={<NavBarLayout />}>
             <Route path="/add-expense" element={<AddExpense />} />
             <Route path="/expense-list" element={<ExpenseList />} />
+            <Route path="/leader-board" element={<LeaderBoard />} />
           </Route>
         </Route>
         <Route element={<RedirectIfAuthenticated />}>

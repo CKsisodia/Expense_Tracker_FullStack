@@ -40,7 +40,6 @@ class ExpenseApiServices {
     }
   };
   updateExpense = async (editFormData) => {
-    console.log(editFormData)
     try {
       const expenseId = editFormData?.expenseId;
       const updatedData = {
@@ -57,6 +56,16 @@ class ExpenseApiServices {
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message);
+      throw error;
+    }
+  };
+
+  premiumUserLeaderboard = async () => {
+    try {
+      const response = await ApiHelper.get("/expense/premium-leaderboard");
+      return response?.data;
+    } catch (error) {
+      console.log(error);
       throw error;
     }
   };

@@ -41,10 +41,8 @@ export const getUserInfoAction = createAsyncThunk(
   }
 );
 
-export const buyPremiumction = createAsyncThunk(
-  "buyPremiumction",
-  async () => {
-    const response = await authApiServices.buyPremium();
-    return response;
-  }
-);
+export const buyPremiumAction = createAsyncThunk("buyPremiumAction", async () => {
+  const response = await authApiServices.buyPremium();
+  return response;
+});
+

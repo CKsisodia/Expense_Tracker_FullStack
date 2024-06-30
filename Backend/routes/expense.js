@@ -7,5 +7,6 @@ router.post("/add-expense", validateAccessToken, expenseController.addExpense);
 router.get("/expense-list",validateAccessToken, expenseController.getAllExpense);
 router.delete("/delete-expense/:expenseId",validateAccessToken, expenseController.deleteExpense);
 router.put("/update-expense/:expenseId",validateAccessToken, expenseController.updateExpense);
+router.get("/premium-leaderboard",validateAccessToken, expenseController.getUserPremiumLeaderboard);
 
 module.exports = router;

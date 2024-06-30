@@ -1,11 +1,11 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
-import { selectLoginStatus } from "../../redux/reducers/authReducers";
+import { Navigate, Outlet } from "react-router-dom";
+import { selectUserData } from "../../redux/reducers/authReducers";
 
 const RedirectIfAuthenticated = () => {
-  const isUserLoggedin = useSelector(selectLoginStatus);
-  return isUserLoggedin ? <Navigate/> : <Outlet />;
+  const user = useSelector(selectUserData);
+  return user?.status ? <Navigate to="/"/> : <Outlet />;
 };
 
 export default RedirectIfAuthenticated;

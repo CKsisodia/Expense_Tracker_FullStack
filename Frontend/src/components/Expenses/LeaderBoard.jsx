@@ -1,6 +1,4 @@
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import { IconButton, Stack, Typography } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -9,57 +7,37 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
+import Typography from "@mui/material/Typography";
 import * as React from "react";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  deleteExpenseAction,
-  getAllExpenseAction,
-} from "../../redux/actions/asyncExpenseAction";
-import { selectExpenseData } from "../../redux/reducers/expenseSlice";
-import formatDate from "../../utils/formattedDate";
-import EditExpense from "./EditExpense";
 import { useState } from "react";
+import { MdOutlineDoNotDisturb, MdWorkspacePremium } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
+import { selectLeaderBoardData } from "../../redux/reducers/expenseSlice";
+import { useEffect } from "react";
+import { getLeaderboardAction } from "../../redux/actions/asyncExpenseAction";
+
 
 const columns = [
-  { id: "category", label: "Category", align: "left", minWidth: 100 },
-  { id: "description", label: "Description", align: "left", minWidth: 100 },
+  { id: "username", label: "Username", align: "left", minWidth: 100 },
   {
-    id: "amount",
-    label: "Amount",
+    id: "total-expense",
+    label: "Total Expense",
     minWidth: 100,
     align: "left",
   },
   {
-    id: "date",
-    label: "Date",
+    id: "subscription",
+    label: "Subscription",
     minWidth: 100,
     align: "center",
   },
-  {
-    id: "actions",
-    label: "Actions",
-    minWidth: 100,
-    align: "right",
-  },
 ];
 
-const ExpenseList = () => {
-  const dispatch = useDispatch();
+const LeaderBoard = () => {
+    const dispatch = useDispatch()
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [expenseId, setExpenseId] = useState(null);
-
-  const expenseData = useSelector(selectExpenseData);
-
-  const handleEditDialogClose = () => {
-    setEditDialogOpen(false);
-  };
-
-  useEffect(() => {
-    dispatch(getAllExpenseAction());
-  }, []);
+  const leaderBoardData = useSelector(selectLeaderBoardData);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -70,14 +48,10 @@ const ExpenseList = () => {
     setPage(0);
   };
 
-  const deleteHandler = (expenseId) => {
-    dispatch(deleteExpenseAction(expenseId));
-  };
-
-  const editHandler = (id) => {
-    setEditDialogOpen(true);
-    setExpenseId(id)
-  };
+  useEffect(() => {
+    dispatch(getLeaderboardAction())
+  }, [])
+  
 
   return (
     <Paper sx={{ width: "50%", m: "80px auto auto auto" }}>
@@ -99,39 +73,23 @@ const ExpenseList = () => {
               ))}
             </TableRow>
           </TableHead>
-          {expenseData?.data && !!expenseData?.data?.length ? (
+          {leaderBoardData?.data && !!leaderBoardData?.data?.length ? (
             <TableBody>
-              {expenseData?.data
+              {leaderBoardData?.data
                 // ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 ?.map((row) => {
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      <TableCell align="left">{row.category}</TableCell>
-                      <TableCell align="left">{row.description}</TableCell>
-                      <TableCell align="left">₹{row.amount}</TableCell>
+                      <TableCell align="left">{row.username}</TableCell>
+                      <TableCell align="left">₹{row.totalAmount}</TableCell>
                       <TableCell align="center">
-                        {formatDate(row.updatedAt)}
-                      </TableCell>
-                      <TableCell align="right">
                         <IconButton
                           sx={{ color: "#eb8690" }}
                           size="small"
-                          onClick={() => deleteHandler(row.id)}
                         >
-                          <DeleteIcon />
+                          {row.premiumUser ? <MdWorkspacePremium color="green" size="2rem"/> : <MdOutlineDoNotDisturb color="orange" size="2rem"/>} 
                         </IconButton>
-                        <IconButton
-                          sx={{ color: "#527d57" }}
-                          size="small"
-                          onClick={() => editHandler(row.id)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <EditExpense
-                          expenseData={expenseData?.data?.filter(item => item.id === expenseId)}
-                          open={editDialogOpen}
-                          handleClose={handleEditDialogClose}
-                        />
+                       
                       </TableCell>
                     </TableRow>
                   );
@@ -140,7 +98,7 @@ const ExpenseList = () => {
           ) : (
             <TableBody>
               <TableRow>
-                <TableCell colSpan={5}>
+                <TableCell colSpan={4}>
                   <Typography align="center" variant="h6">
                     No Data found !
                   </Typography>
@@ -153,7 +111,7 @@ const ExpenseList = () => {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        count={expenseData?.data ? expenseData?.data?.length : 0}
+        count={leaderBoardData?.data ? leaderBoardData?.data?.length : 0}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
@@ -163,4 +121,4 @@ const ExpenseList = () => {
   );
 };
 
-export default ExpenseList;
+export default LeaderBoard;

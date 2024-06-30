@@ -1,24 +1,42 @@
 const Expense = require("../models/expense");
+const User = require("../models/user");
 const ApiError = require("../utils/ApiError");
 const ApiResponse = require("../utils/ApiResponse");
+const sequelize = require("../db/database");
 
 exports.addExpense = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
     const { description, amount, category } = req.body;
     const userId = req.user.id;
     if (!(description && amount && category)) {
+      await t.rollback();
       return res.status(400).json(new ApiError("All fiels are mandatory"));
     }
-    const createExpense = await Expense.create({
-      description,
-      amount,
-      category,
-      userId,
-    });
+    const createExpense = await Expense.create(
+      {
+        description,
+        amount,
+        category,
+        userId,
+      },
+      { transaction: t }
+    );
+
+    const user = await User.findByPk(userId, { transaction: t });
+    if (!user) {
+      await t.rollback();
+      return res.status(400).json(new ApiError("user not found"));
+    }
+
+    user.totalAmount += amount;
+    await user.save({ transaction: t });
+    await t.commit();
     return res
       .status(201)
       .json(new ApiResponse("New expense created succesfully", createExpense));
   } catch (error) {
+    await t.rollback();
     if (error.name === "SequelizeValidationError") {
       const errorMessage = error.errors.map((err) => err.message).join(", ");
       return res.status(400).json(new ApiError(errorMessage));
@@ -46,53 +64,109 @@ exports.getAllExpense = async (req, res) => {
   }
 };
 exports.deleteExpense = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
     const userId = req.user.id;
     const { expenseId } = req.params;
 
-    const expense = await Expense.findByPk(expenseId);
+    const expense = await Expense.findByPk(expenseId, { transaction: t });
     if (!expense) {
+      await t.rollback();
       res.status(400).json(new ApiError("Expense not found"));
     }
+
+    const amount = expense.amount;
 
     const deletedExpense = await Expense.destroy({
       where: { id: expenseId, userId },
     });
 
+    const user = await User.findByPk(userId, { transaction: t });
+
+    if (!user) {
+      await t.rollback();
+      return res.status(400).json(new ApiError("user not found"));
+    }
+
+    user.totalAmount -= amount;
+    await user.save();
+    await t.commit();
+
     return res
       .status(200)
       .json(new ApiResponse("Expense deleted successfully", deletedExpense));
   } catch (error) {
+    await t.rollback();
     return res.status(500).json(new ApiError("Internal server error"));
   }
 };
 exports.updateExpense = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
     const { updateDescription, updateAmount, updateCategory } = req.body;
     const { expenseId } = req.params;
     const userId = req.user.id;
 
     if (!(updateDescription && updateAmount && updateCategory && expenseId)) {
+      await t.rollback();
       return res
         .status(400)
         .json(new ApiError("All fields are mandatory with expenseId"));
     }
 
-    const expense = await Expense.findOne({
-      where: { id: expenseId, userId: userId },
-    });
+    const expense = await Expense.findOne(
+      {
+        where: { id: expenseId, userId: userId },
+      },
+      { transaction: t }
+    );
+
     if (!expense) {
+      await t.rollback();
       return res.status(404).json(new ApiError("Expense not found"));
     }
 
+    const oldAmount = expense.amount;
     expense.description = updateDescription || expense.description;
     expense.amount = updateAmount || expense.amount;
     expense.category = updateCategory || expense.category;
-    await expense.save();
+    await expense.save({ transaction: t });
+
+    const user = await User.findByPk(userId, { transaction: t });
+
+    if (!user) {
+      await t.rollback();
+      return res.status(400).json(new ApiError("user not found"));
+    }
+
+    user.totalAmount += updateAmount - oldAmount;
+
+    await user.save({ transaction: t });
+    await t.commit();
 
     return res
       .status(200)
       .json(new ApiResponse("Expense updated !", { expense }));
+  } catch (error) {
+    await t.rollback();
+    return res.status(500).json(new ApiError("Internal server error"));
+  }
+};
+
+exports.getUserPremiumLeaderboard = async (req, res) => {
+  try {
+    const userData = await User.findAll({
+      attributes: ["username","totalAmount","premiumUser"],
+      order: [[sequelize.literal('totalAmount'), 'DESC']],
+    });
+
+    if (!userData) {
+      return res.status(400).json(new ApiError("User not found"));
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse("Data fetch Successfully", userData));
   } catch (error) {
     return res.status(500).json(new ApiError("Internal server error"));
   }

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { selectLoginStatus } from "../../redux/reducers/authReducers";
+import { selectUserData } from "../../redux/reducers/authReducers";
 import Loading from "../common/Loading";
 
 const RequireAuth = () => {
-  const isUserLoggedin = useSelector(selectLoginStatus);
+  const user = useSelector(selectUserData);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
 
@@ -15,12 +15,12 @@ const RequireAuth = () => {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [isUserLoggedin]);
+  }, [user?.status]);
 
   if (isLoading) {
     return <Loading />;
   }
-  return isUserLoggedin ? (
+  return user?.status ? (
     <Outlet />
   ) : (
     <Navigate to="/login" state={{ from: location }} replace />

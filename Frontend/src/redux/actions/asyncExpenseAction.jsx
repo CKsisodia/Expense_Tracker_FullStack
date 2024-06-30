@@ -35,3 +35,11 @@ export const updateExpenseAction = createAsyncThunk(
     return response;
   }
 );
+
+export const getLeaderboardAction = createAsyncThunk(
+  "getLeaderboardAction",
+  async () => {
+    const response = await expenseApiServices.premiumUserLeaderboard();
+    return response;
+  }
+);
