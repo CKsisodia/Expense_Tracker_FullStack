@@ -80,7 +80,7 @@ const ExpenseList = () => {
   };
 
   return (
-    <Paper sx={{ width: "50%", m: "80px auto auto auto" }}>
+    <Paper sx={{ m: "80px auto auto auto" }}>
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>

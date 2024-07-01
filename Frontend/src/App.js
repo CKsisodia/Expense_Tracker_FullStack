@@ -13,6 +13,7 @@ import Signup from "./components/auth/Signup";
 import { getUserInfoAction } from "./redux/actions/asyncAuthAction";
 import ResetPassword from "./components/auth/ResetPassword";
 import LeaderBoard from "./components/Expenses/LeaderBoard";
+import PremiumLayout from "./components/Expenses/PremiumLayout";
 
 function App() {
   const dispatch = useDispatch();
@@ -27,7 +28,7 @@ function App() {
         <Route element={<RequireAuth />}>
           <Route path="/" element={<NavBarLayout />}>
             <Route path="/add-expense" element={<AddExpense />} />
-            <Route path="/expense-list" element={<ExpenseList />} />
+            <Route path="/expense-list" element={<PremiumLayout />} />
             <Route path="/leader-board" element={<LeaderBoard />} />
           </Route>
         </Route>
